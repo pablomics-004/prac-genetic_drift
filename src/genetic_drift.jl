@@ -1,6 +1,6 @@
 #=
 Usage
-    julia --project=. ./genetic_drift.jl -d 42 -s 1000 -g 100 -m 1000
+    julia --project=. ./src/genetic_drift.jl -d 42 -s 1000 -g 100 -m 1000
 =#
 using StatsBase: sample
 using ArgParse
