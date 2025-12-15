@@ -1,0 +1,4 @@
+[deps]
+ArgParse = "c7e460c6-2fb9-53a9-8c5b-16f535851c63"
+GLMakie = "e9467ef8-e4e7-5192-8a1a-b1aee30e663a"
+StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
