@@ -43,7 +43,6 @@ function genetic_drift(
     α = 4
     N = size * 2
     invN = 1.0 / N
-    # rng = MersenneTwister(seed)
 
     He = Vector{Float64}(undef, generations)
     counts = zeros(UInt32, N)
@@ -59,7 +58,7 @@ function genetic_drift(
     for gen in 1:generations
         empty!(touched)
         # Vector x indices
-        @inbounds for i in 1:N
+        @inbounds for i in alleles
             e = parent_alleles[rand(rng, alleles)]
             next_alleles[i] = e
             
@@ -74,8 +73,8 @@ function genetic_drift(
         pa_1[gen] = pA1
         He[gen] = 2*pA1*(1 - pA1)
 
-        k = length(touched)
-        if α * k ≤ N # k/N ≤ 1/α
+        κ = length(touched)
+        if α * κ ≤ N # κ/N ≤ 1/α
             @inbounds for i in touched
                 counts[i] = 0
             end
@@ -117,23 +116,34 @@ end
 function main()
     args = get_args()
 
+    t0 = time()
     pa1 = Vector{VF64}(undef, args["simulations"])
     He = similar(pa1)
 
     rng = MersenneTwister(args["seed"])
+    separate_line = repeat("-", 80)
+
+    println(separate_line)
+    println("Starting genetic drift computation with seed $(args["seed"]), \
+    population size $(args["size"]), generations $(args["generations"]) and simulations $(args["simulations"])...")
+    println(separate_line)
 
     for i in eachindex(pa1)
         va1, vhe = genetic_drift(rng, args["size"], args["generations"])
         pa1[i] = va1
         He[i] = vhe
     end
+    tf = time()
 
-    println("Genetic drift computation finished! Plotting in process...")
+    println("Genetic drift computation finished ($(round(tf - t0, digits=3)) seconds)! Plotting in process...")
+    println(separate_line)
 
     generations = 1:args["generations"]
     f = plot_unit(pa1, He, generations)
     display(f)
     wait(f.scene)
+    println("Process finished!")
+    println(separate_line)
 end
 
 # Will execute only if the file is run
