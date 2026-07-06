@@ -1,152 +1,71 @@
-#=
-Usage
-    julia --project=. ./src/genetic_drift.jl -d 42 -s 1000 -g 100 -m 1000
-=#
-using StatsBase: sample
-using ArgParse
-using GLMakie
+#!/usr/bin/env julia
+
+# ====================== PACKAGES ======================
+
+using Distributions
+using CairoMakie
 using Random
+
+# ====================== FUNCTIONS ======================
 
 const VF64 = Vector{Float64}
 
-function plot_unit(
-    Y1::Vector{VF64},
-    Y2::Vector{VF64},
-    x::AbstractVector{<:Integer}
-)::Figure
-    f = Figure()
-    ax1 = Axis(f[1,1], title="Frequency-generations")
-    ax2 = Axis(f[1,2], title="Heterozygosity-generations")
+function plot_on_axis(
+    ax::Axis,
+    Ys::Vector{VF64},
+    x::AbstractVector{<:Real};
+    labels::Union{Nothing, Vector{String}} = nothing,
+    linestyle = :solid,
+    xlbl::AbstractString = "",
+    ylbl::AbstractString = ""
+)
+    ax.xlabel = xlbl
+    ax.ylabel = ylbl
 
-    axs = (ax1, ax2)
-    Ys = (Y1, Y2)
-
-    ylbl = ("A1 frequency", "Heterozygosity")
-    xlbl = "Generations"
-
-    for (idx, Y) in enumerate(Ys)
-
-        axs[idx].ylabel = ylbl[idx]
-        axs[idx].xlabel = xlbl
-
-        for y in Y; lines!(axs[idx], x, y); end
+    if isnothing(labels)
+        for y in Ys
+            lines!(ax, x, y; linestyle = linestyle)
+        end
+    else
+        for (y, lab) in zip(Ys, labels)
+            lines!(ax, x, y; label = lab, linestyle = linestyle)
+        end
     end
 
-    return f
+    return ax
 end
 
 function genetic_drift(
     rng::AbstractRNG,
-    size::Int, 
-    generations::Int
+    size::Int = 5,
+    p0::Float64 = 0.2,
+    H0::Float64 = 0.2,
+    generations::Int = 10
 )::Tuple{Vector{Float64},Vector{Float64}}
-    α = 4
-    N = size * 2
-    invN = 1.0 / N
 
-    He = Vector{Float64}(undef, generations)
-    counts = zeros(UInt32, N)
-    pa_1 = similar(He)
-    touched = Int[]
-    sizehint!(touched, N)
+    inv2N = 1.0 / Float64(2 * size)
 
-    alleles = 1:N
-    parent_alleles = rand(rng, alleles, N)
-    next_alleles = similar(parent_alleles)
-    a1 = sample(rng, alleles, 3; replace=false)
+    pA1 = Vector{Float64}(undef, generations)
+    Ht = similar(pA1)
 
-    for gen in 1:generations
-        empty!(touched)
-        # Vector x indices
-        @inbounds for i in alleles
-            e = parent_alleles[rand(rng, alleles)]
-            next_alleles[i] = e
-            
-            if counts[e] == 0
-                push!(touched, e)
-            end
+    pA1[1] = p0
+    Ht[1] = Ht
 
-            counts[e] += 1
-        end
-        pA1 = Float64(sum(counts[idx] for idx in a1)) * invN
+    alleles = 2 * size
 
-        pa_1[gen] = pA1
-        He[gen] = 2*pA1*(1 - pA1)
-
-        κ = length(touched)
-        if α * κ ≤ N # κ/N ≤ 1/α
-            @inbounds for i in touched
-                counts[i] = 0
-            end
-        else
-            fill!(counts, 0)
-        end
-
-        # Next generation is the current generation
-        parent_alleles, next_alleles = next_alleles, parent_alleles
+    @inbounds for g in 2:generations
+        pA1[g] = rand(rng, Binomial(alleles, pA1[g-1])) / alleles
+        Ht[g] = H0 * (1.0 - inv2N)^(g-1)
     end
-    return pa_1, He
+    
+    return pA1, Ht
 end
 
-function get_args()
-    s = ArgParseSettings()
-
-    @add_arg_table s begin
-        "--seed", "-d"
-            help = "Seed for random experiments"
-            arg_type = Int
-            default = 42
-        "--size", "-s"
-            help = "Population size"
-            arg_type = Int
-            default = 5
-        "--generations", "-g"
-            help = "Simulated generations"
-            arg_type = Int
-            default = 1000
-        "--simulations", "-m"
-            help = "Number of genetic drift simulations"
-            arg_type = Int
-            default = 1
-    end
-
-    return parse_args(s)
-end
+# ====================== MAIN ======================
 
 function main()
-    args = get_args()
-
-    t0 = time()
-    pa1 = Vector{VF64}(undef, args["simulations"])
-    He = similar(pa1)
-
-    rng = MersenneTwister(args["seed"])
-    separate_line = repeat("-", 80)
-
-    println(separate_line)
-    println("Starting genetic drift computation with seed $(args["seed"]), \
-    population size $(args["size"]), generations $(args["generations"]) and simulations $(args["simulations"])...")
-    println(separate_line)
-
-    for i in eachindex(pa1)
-        va1, vhe = genetic_drift(rng, args["size"], args["generations"])
-        pa1[i] = va1
-        He[i] = vhe
-    end
-    tf = time()
-
-    println("Genetic drift computation finished ($(round(tf - t0, digits=3)) seconds)! Plotting in process...")
-    println(separate_line)
-
-    generations = 1:args["generations"]
-    f = plot_unit(pa1, He, generations)
-    display(f)
-    wait(f.scene)
-    println("Process finished!")
-    println(separate_line)
 end
 
-# Will execute only if the file is run
 if abspath(PROGRAM_FILE) == @__FILE__
     main()
 end
