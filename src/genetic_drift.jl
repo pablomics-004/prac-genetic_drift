@@ -9,6 +9,7 @@ Gillespie, J. H. (2004). Population genetics: A concise guide (2nd ed.). The Joh
 
 using Distributions
 using CairoMakie
+using ArgParse
 using Random
 
 # ====================== FUNCTIONS ======================
@@ -162,6 +163,10 @@ function argument_parser()
             help = "File format for image files from the following: jpg, png, jpeg, svg"
             arg_type = String
             default = "png"
+        "--pixels", "-p"
+            help = "Pixels per unit (definition of the image)"
+            arg_type = Int
+            default = 2
     end
 
     return parse_args(s)
@@ -173,7 +178,8 @@ function main(
     size::Int, p0::Float64, seed::Int,
     H0::Float64, sims::Int, gens::Int,
     outdir::String, format::String, 
-    allele_file::String, zigosity_file::String
+    allele_file::String, zigosity_file::String,
+    pixels::Int
 )
 
     # ====================== GENETIC DRIFT SIMULATION ======================
@@ -201,7 +207,7 @@ function main(
     # Saving image
     allele_file = "$(allele_file).$format"
     format ∈ Set(["png", "jpg", "jpeg"]) ? 
-        save(joinpath(outdir, allele_file), f, px_per_unit=3) : 
+        save(joinpath(outdir, allele_file), f, px_per_unit=pixels) : 
         save(joinpath(outdir, allele_file), f)
 
     # ====================== ZYGOSITY PLOTS ======================
@@ -215,7 +221,7 @@ function main(
     # Saving image
     zigosity_file = "$(zigosity_file).$format"
     format ∈ Set(["png", "jpg", "jpeg"]) ? 
-        save(joinpath(outdir, zigosity_file), g, px_per_unit=3) : 
+        save(joinpath(outdir, zigosity_file), g, px_per_unit=pixels) : 
         save(joinpath(outdir, zigosity_file), g)
 end
 
@@ -241,11 +247,12 @@ if abspath(PROGRAM_FILE) == @__FILE__
         file_format = "png"
     end
 
+    pixels = Int(args["pixels"])
     allele_file = args["allele_image"]
     zigosity_file = args["zigosity_image"]
 
     mkpath(outdir)
     
     # ========================= MAIN =========================
-    main(size, pA, seed, H, simulations, generations, outdir, file_format, allele_file, zigosity_file)
+    main(size, pA, seed, H, simulations, generations, outdir, file_format, allele_file, zigosity_file, pixels)
 end
