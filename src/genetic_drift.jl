@@ -82,8 +82,10 @@ function genetic_drift_zygosity(
     generations::Int = 10
 )::Tuple{Vector{Float64},Vector{Float64}}
     #=
-    Genetic drift simulation for a diploid hermaphroditic and panmictic population
-    according to the second Chapter of the Gillespie, 2004, p. 46-56.
+    Impact of the genetic drift simulation for a diploid hermaphroditic and 
+    panmictic population according to the second Chapter of the Gillespie, 2004, p. 46-56.
+    Because this computation mainly depends in the population size and the initial
+    heterozigosity no random generator (seed) is used.
 
     Parameters
     ----------
