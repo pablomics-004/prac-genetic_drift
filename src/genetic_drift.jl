@@ -135,7 +135,7 @@ function argument_parser()
             help = "Initial allele frequency"
             arg_type = Float64
             default = 0.5
-        "--heterozigosity", "-h"
+        "--heterozigosity", "-t"
             help = "Initial heterozigosity"
             arg_type = Float64
             default = 0.5
@@ -163,7 +163,7 @@ function argument_parser()
             help = "File format for image files from the following: jpg, png, jpeg, svg"
             arg_type = String
             default = "png"
-        "--pixels", "-p"
+        "--pixels", "-x"
             help = "Pixels per unit (definition of the image)"
             arg_type = Int
             default = 2
@@ -184,6 +184,8 @@ function main(
 
     # ====================== GENETIC DRIFT SIMULATION ======================
 
+    @info "Memory allocation in the main function."
+
     # Memory allocation
     pA1 = Vector{Vector{Float64}}(undef, sims)
     generations = collect(1:gens)
@@ -191,13 +193,22 @@ function main(
     # Random generator
     rng = Xoshiro(seed)
 
+    @info "Starting genetic drift simulation..."
+
     for i in eachindex(pA1)
         pA1[i] = genetic_drift(rng, size, p0, gens)
     end
 
-    zygosity = genetic_drift_zygosity(size, H0, gens)
+    @info "Frequency successfully computed!"
+
+    @info "Starting heterozygosity and homozygosity computation..."
+    hetero, homo = genetic_drift_zygosity(size, H0, gens)
+
+    @info "Heterozygosity and homozygosity successfully computed!"
 
     # ====================== FREQUENCY PLOTS ======================
+
+    @info "Beginning to plot for allele frequency..."
 
     f = Figure()
     ax = Axis(f[1,1:2])
@@ -210,22 +221,30 @@ function main(
         save(joinpath(outdir, allele_file), f, px_per_unit=pixels) : 
         save(joinpath(outdir, allele_file), f)
 
+    @info "Plot saved at $allele_file"
+
     # ====================== ZYGOSITY PLOTS ======================
 
+    @info "Beginning to plot hetero-/homozygosity..."
     g = Figure()
     ax = Axis(g[1,1])
 
     Labels = ["Heterozygosity", "Homozygosity"]
-    plot_on_axis(ax, zygosity, generations; labels=Labels, xlbl="Generations", ylbl="Frequency")
+    plot_on_axis(ax, [hetero, homo], generations; labels=Labels, xlbl="Generations", ylbl="Frequency")
+    Legend(g[1,2], ax)
 
     # Saving image
     zigosity_file = "$(zigosity_file).$format"
     format ∈ Set(["png", "jpg", "jpeg"]) ? 
         save(joinpath(outdir, zigosity_file), g, px_per_unit=pixels) : 
         save(joinpath(outdir, zigosity_file), g)
+    
+    @info "Plot saved at $zigosity_file"
 end
 
 if abspath(PROGRAM_FILE) == @__FILE__
+
+    @info "Starting script execution..."
     
     # ========================= PARAMETERS =========================
     args = argument_parser()
@@ -255,4 +274,6 @@ if abspath(PROGRAM_FILE) == @__FILE__
     
     # ========================= MAIN =========================
     main(size, pA, seed, H, simulations, generations, outdir, file_format, allele_file, zigosity_file, pixels)
+
+    @info "Script finished successfully!"
 end
