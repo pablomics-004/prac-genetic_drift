@@ -18,23 +18,27 @@ const VF64 = Vector{Float64}
 
 function plot_on_axis(
     ax::Axis,
-    Ys::Vector{VF64},
+    Ys::Vector{Vector{Float64}}, # Asumiendo tu vector de vectores
     x::AbstractVector{<:Real};
     labels::Union{Nothing, Vector{String}} = nothing,
     linestyle = :solid,
     xlbl::AbstractString = "",
-    ylbl::AbstractString = ""
+    ylbl::AbstractString = "",
+    cmap = :viridis
 )
     ax.xlabel = xlbl
     ax.ylabel = ylbl
 
+    num_lineas = length(Ys)
+    colores = cgrad(cmap, num_lineas, categorical=true)
+
     if isnothing(labels)
-        for y in Ys
-            lines!(ax, x, y; linestyle = linestyle)
+        for (i, y) in enumerate(Ys)
+            lines!(ax, x, y; linestyle = linestyle, color = colores[i])
         end
     else
-        for (y, lab) in zip(Ys, labels)
-            lines!(ax, x, y; label = lab, linestyle = linestyle)
+        for (i, (y, lab)) in enumerate(zip(Ys, labels))
+            lines!(ax, x, y; label = lab, linestyle = linestyle, color = colores[i])
         end
     end
 
@@ -213,7 +217,7 @@ function main(
     f = Figure()
     ax = Axis(f[1,1:2])
 
-    plot_on_axis(ax, pA1, generations; xlbl="Generations", ylbl="Allelic frequency (p)")
+    plot_on_axis(ax, pA1, generations; xlbl="Generations", ylbl="Allelic frequency (p)", cmap=:inferno)
 
     # Saving image
     allele_file = "$(allele_file).$format"
@@ -230,7 +234,7 @@ function main(
     ax = Axis(g[1,1])
 
     Labels = ["Heterozygosity", "Homozygosity"]
-    plot_on_axis(ax, [hetero, homo], generations; labels=Labels, xlbl="Generations", ylbl="Frequency")
+    plot_on_axis(ax, [hetero, homo], generations; labels=Labels, xlbl="Generations", ylbl="Frequency", cmap=:Set1)
     Legend(g[1,2], ax)
 
     # Saving image
@@ -240,6 +244,34 @@ function main(
         save(joinpath(outdir, zigosity_file), g)
     
     @info "Plot saved at $zigosity_file"
+
+    # ====================== COMBINED PLOTS ======================
+
+    @info "Beginning to plot allele frequency and zygosity..."
+
+    f = Figure(size = (1200, 500))
+
+    ax1 = Axis(f[1, 3:4], title="Hetero-/homozigosity", titlefont=:bold)
+    Labels = ["Heterozygosity", "Homozygosity"]
+    plot_on_axis(ax1, [hetero, homo], generations; labels=Labels, cmap=:Set1)
+    axislegend(ax1, position = :lt)
+
+    ax2 = Axis(f[1, 1:2], title="Allele frequency (p)", titlefont=:bold)
+    plot_on_axis(ax2, pA1, generations; cmap=:inferno)
+
+    Label(f[0, :], "Genetic drift simulation", font = :bold)
+    Label(f[1:2, 0], "Frequency", font = :bold, rotation = pi/2)
+    Label(f[2, :], "Generations", font = :bold)
+
+    combined_file = "genetic_drift_combined-julia.$format"
+    
+    if format ∈ Set(["png", "jpg", "jpeg"])
+        save(joinpath(outdir, combined_file), f, px_per_unit=pixels)
+    else
+        save(joinpath(outdir, combined_file), f)
+    end
+
+    @info "Combined plot successfully saved at $combined_file"
 end
 
 if abspath(PROGRAM_FILE) == @__FILE__
