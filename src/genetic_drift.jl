@@ -259,9 +259,9 @@ function main(
     ax2 = Axis(f[1, 1:2], title="Allele frequency (p)", titlefont=:bold)
     plot_on_axis(ax2, pA1, generations; cmap=:inferno)
 
-    Label(f[0, :], "Genetic drift simulation", font = :bold)
-    Label(f[1:2, 0], "Frequency", font = :bold, rotation = pi/2)
-    Label(f[2, :], "Generations", font = :bold)
+    Label(f[0, :], "Genetic drift simulation", font = :bold, fontsize=18)
+    Label(f[1:2, 0], "Frequency", font = :bold, rotation = pi/2, fontsize=18)
+    Label(f[2, :], "Generations", font = :bold, fontsize=18)
 
     combined_file = "genetic_drift_combined-julia.$format"
     

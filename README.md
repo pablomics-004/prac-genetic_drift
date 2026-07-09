@@ -12,8 +12,6 @@ This repository aims to implement a genetic drift simulation in both Python and 
 
 In both cases, the code simulates genetic drift according to the [Wright-Fisher model](https://www.sciencedirect.com/topics/biochemistry-genetics-and-molecular-biology/wright-fisher-model), in which random sampling leads to allele fixation, allele loss, reduced heterozygosity, and coalescence (see Python's implementation).
 
-![Genetic Drift Simulation Results](results/images/gendrift-python.png)
-
 ## Wright-Fisher Model
 
 This models a single evolutive force (genetic drift) with the following assumptions:
@@ -51,13 +49,17 @@ $$
 H_e = 2p(1-p)
 $$
 
+![Python's Genetic Drift Simulation Results](results/images/gendrift-python.png)
+
 ## Julia's Implementation
 
-This one uses the traditional **binomial distribution** as it was not intended for tracking the individual copies each allele inherits to the next generation. In contrast with the Python's version, here I computed the heterozygosity $H_e$ as a function of time (Gillespie, 2004, p. 50):
+This one uses the traditional **binomial distribution** as it was not intended for tracking the individual copies each allele inherits to the next generation. In contrast with the Python's version, here I computed the heterozygosity $H_e$ as an exponential decay function of time (Gillespie, 2004, p. 50):
 
 $$
 H_e(t) = H_0(1-\frac{1}{2N})^{t-1}, \text{ }t > 0
 $$
+
+![Julia's Genetic Drift Simulation Results](results/images/genetic_drift_combined-julia.png)
 
 Usage example:
 
@@ -66,4 +68,10 @@ julia --project=. ./src/genetic_drift.jl \
     -i 10 -p 0.3 \
     -g 50 -t 0.42 \
     -o results/images
+```
+
+For more information on the parameters, run:
+
+```shell
+julia --project=. ./src/genetic_drift.jl -h
 ```
