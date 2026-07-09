@@ -70,8 +70,14 @@ julia --project=. ./src/genetic_drift.jl \
     -o results/images
 ```
 
-For more information on the parameters, run:
+For more information on the parameters run:
 
 ```shell
 julia --project=. ./src/genetic_drift.jl -h
+```
+
+It is equivalent to:
+
+```shell
+julia --project=. ./src/genetic_drift.jl --help
 ```
