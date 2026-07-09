@@ -20,8 +20,9 @@ This models a single evolutive force (genetic drift) with the following assumpti
 * Constant population size
 * Hermaphroditic individuals
 * Discrete generations
+* No other evolutive force influences the population
 
-Because the sampling is stochastic, the allele frequency depends only on the population size and initial allele frequency.
+Because the sampling is stochastic, the allele frequency depends only on the population size and behaves as a Markov process due to the lack of memory of past states (the next generation frequencies are influenced solely by the current state).
 
 ## Repository Structure
 ```text
