@@ -18,7 +18,7 @@ const VF64 = Vector{Float64}
 
 function plot_on_axis(
     ax::Axis,
-    Ys::Vector{Vector{Float64}}, # Asumiendo tu vector de vectores
+    Ys::Vector{Vector{Float64}},
     x::AbstractVector{<:Real};
     labels::Union{Nothing, Vector{String}} = nothing,
     linestyle = :solid,
