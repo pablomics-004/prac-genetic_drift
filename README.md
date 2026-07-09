@@ -21,7 +21,7 @@ This models a single evolutive force (genetic drift) with the following assumpti
 * Hermaphroditic individuals
 * Discrete generations
 
-Because the sampling is stochastic, the allele frequency depends only on the population size.
+Because the sampling is stochastic, the allele frequency depends only on the population size and initial allele frequency.
 
 ## Repository Structure
 ```text
@@ -53,7 +53,7 @@ $$
 
 ## Julia's Implementation
 
-This one uses the traditional **binomial distribution** as it was not intended for tracking the individual copies each allele inherits to the next generation. In contrast with the Python's version, here I computed the heterozygosity $H_e$ as an exponential decay function of time (Gillespie, 2004, p. 50):
+This one uses the traditional **binomial distribution** as it was not intended for tracking the individual copies each allele inherits to the next generation. In contrast with the Python's version, the heterozygosity $H_e$ is computed as an exponential decay function of time (where time is discrete and corresponds to a given generation) [1]:
 
 $$
 H_e(t) = H_0(1-\frac{1}{2N})^{t-1}, \text{ }t > 0
