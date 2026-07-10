@@ -32,9 +32,7 @@ Because the sampling is stochastic, the allele frequency depends only on the pop
 ├── Project.toml
 ├── README.md
 ├── results
-│   └── images
-│       ├── genetic-drift_allelefreq.png
-│       └── genetic-drift_hetero-homo.png
+│   └── images
 └── src
     ├── genetic_drift.ipynb
     └── genetic_drift.jl
