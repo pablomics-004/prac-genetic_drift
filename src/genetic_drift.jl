@@ -18,7 +18,7 @@ const VF64 = Vector{Float64}
 
 function plot_on_axis(
     ax::Axis,
-    Ys::Vector{Vector{Float64}},
+    Ys::Vector{VF64},
     x::AbstractVector{<:Real};
     labels::Union{Nothing, Vector{String}} = nothing,
     linestyle = :solid,
@@ -50,7 +50,7 @@ function genetic_drift(
     size::Int = 5,
     p0::Float64 = 0.2,
     generations::Int = 10
-)::Vector{Float64}
+)::VF64
     #=
     Genetic drift simulation for a diploid hermaphroditic and panmictic population
     according to the second Chapter of the Gillespie, 2004, p. 46-56.
@@ -66,7 +66,7 @@ function genetic_drift(
         pA1: vector of allele frequencies
     =#
 
-    pA1 = Vector{Float64}(undef, generations)
+    pA1 = VF64(undef, generations)
 
     pA1[1] = p0
 
@@ -85,7 +85,7 @@ function genetic_drift_zygosity(
     size::Int = 5,
     H0::Float64 = 0.2,
     generations::Int = 10
-)::Tuple{Vector{Float64},Vector{Float64}}
+)::Tuple{VF64,VF64}
     #=
     Impact of the genetic drift simulation for a diploid hermaphroditic and 
     panmictic population according to the second Chapter of the Gillespie, 2004, p. 46-56.
@@ -106,7 +106,7 @@ function genetic_drift_zygosity(
     
     inv2N = 1.0 / Float64(2 * size)
 
-    Ht = Vector{Float64}(undef, generations)
+    Ht = VF64(undef, generations)
     Gt = similar(Ht)
 
     Ht[1] = H0
@@ -191,7 +191,7 @@ function main(
     @info "Memory allocation in the main function."
 
     # Memory allocation
-    pA1 = Vector{Vector{Float64}}(undef, sims)
+    pA1 = Vector{VF64}(undef, sims)
     generations = collect(1:gens)
 
     # Random generator
