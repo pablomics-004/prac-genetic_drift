@@ -80,3 +80,7 @@ It is equivalent to:
 ```shell
 julia --project=. ./src/genetic_drift.jl --help
 ```
+
+# References
+
+[1]    Gillespie, J. H. (2004). Population genetics: A concise guide (2.ª ed.). Johns Hopkins University Press.
