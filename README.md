@@ -8,7 +8,7 @@
 
 ## Overview
 
-This repository aims to implement a genetic drift simulation in both Python and Julia. The first one follows the algorithm described by [Dr. Laura Figueroa-Corona](https://liigh.unam.mx/newpage/perfil.php?n=30) in the course of Evolution and Population Genetics. On the other hand, Julia's implementation is based on [1], which was provided by [Dr. Mashaal Sohail](https://www.ccg.unam.mx/mashaal-sohail/) for the Human Genomics course at the [B.Sc. in Genomic Sciences](https://www.lcg.unam.mx).
+This repository aims to implement a genetic drift simulation in both Python and Julia. The first one follows the algorithm described by [Dr. Laura Figueroa-Corona](https://liigh.unam.mx/newpage/perfil.php?n=30) in the course of Evolution and Population Genetics. On the other hand, Julia's implementation is based on [1], provided by [Dr. Mashaal Sohail](https://www.ccg.unam.mx/mashaal-sohail/) for the Human Genomics course at the [B.Sc. in Genomic Sciences](https://www.lcg.unam.mx).
 
 In both cases, the code simulates genetic drift according to the [Wright-Fisher model](https://www.sciencedirect.com/topics/biochemistry-genetics-and-molecular-biology/wright-fisher-model), in which random sampling leads to allele fixation, allele loss, reduced heterozygosity, and coalescence (see Python's implementation).
 
